@@ -4,42 +4,58 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   pipeline:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar código
+      - name: Checkout código
         uses: actions/checkout@v4
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
 
       - name: Instalar dependencias
         run: npm ci
 
-      - name: Ejecutar lint
+      - name: Control de calidad (Lint)
         run: npm run lint
 
-      - name: Ejecutar tests
+      - name: Verificación funcional (Tests)
         run: npm run test
 
       - name: Compilar aplicación
         run: npm run build
 
       - name: Empaquetar aplicación
-        run: 
-          tar -czf app.tar.gz dist
+        run: tar -czf app-build.tar.gz dist
 
-      - name: Deploy STAGING
+      - name: Deploy STAGING (Vercel)
         run: |
-          mkdir -p staging
-          cp -r dist/* staging/
+          npm install --global vercel@latest
+          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Deploy PRODUCTION
-        run: |
-          mkdir -p production
-          cp -r dist/* production/
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir artefacto GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy PRODUCTION (GitHub Pages)
+        uses: actions/deploy-pages@v4
