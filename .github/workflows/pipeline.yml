@@ -9,37 +9,37 @@ jobs:
   pipeline:
     runs-on: ubuntu-latest
 
-steps:
-  - name: Descargar código
-    uses: actions/checkout@v4
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
 
-  - name: Configurar Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: '20'
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-  - name: Instalar dependencias
-    run: npm ci
+      - name: Instalar dependencias
+        run: npm ci
 
-  - name: Ejecutar lint
-    run: npm run lint
+      - name: Ejecutar lint
+        run: npm run lint
 
-  - name: Ejecutar tests
-    run: npm run test
+      - name: Ejecutar tests
+        run: npm run test
 
-  - name: Compilar aplicación
-    run: npm run build
+      - name: Compilar aplicación
+        run: npm run build
 
-  - name: Empaquetar aplicación
-    run: 
-      tar -czf app.tar.gz dist
+      - name: Empaquetar aplicación
+        run: 
+          tar -czf app.tar.gz dist
 
-  - name: Deploy STAGING
-    run: 
-      mkdir staging
-      cp -r dist/* staging/
+      - name: Deploy STAGING
+        run: 
+          mkdir staging
+          cp -r dist/* staging/
 
-  - name: Deploy PRODUCTION
-    run: 
-      mkdir production
-      cp -r dist/* production/
+      - name: Deploy PRODUCTION
+        run: 
+          mkdir production
+          cp -r dist/* production/
