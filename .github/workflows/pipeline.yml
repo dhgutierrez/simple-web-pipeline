@@ -35,11 +35,11 @@ jobs:
           tar -czf app.tar.gz dist
 
       - name: Deploy STAGING
-        run: 
-          mkdir staging
+        run: |
+          mkdir -p staging
           cp -r dist/* staging/
 
       - name: Deploy PRODUCTION
-        run: 
-          mkdir production
+        run: |
+          mkdir -p production
           cp -r dist/* production/
